@@ -1,5 +1,5 @@
 {
-	"name": "inputs",
+	"name": "graphics2",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
@@ -8,13 +8,13 @@
 	},
 	"repository": {
 	  "type": "git",
-	  "url": "git+https://github.com/gandolphinnn/npm_inputs.git"
+	  "url": "git+https://github.com/gandolphinnn/npm_graphics2.git"
 	},
 	"author": "Gandolphinnn",
 	"license": "ISC",
 	"bugs": {
-	  "url": "https://github.com/gandolphinnn/npm_inputs/issues"
+	  "url": "https://github.com/gandolphinnn/npm_graphics2/issues"
 	},
-	"homepage": "https://github.com/gandolphinnn/npm_inputs#readme"
+	"homepage": "https://github.com/gandolphinnn/npm_graphics2#readme"
   }
   

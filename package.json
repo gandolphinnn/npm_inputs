@@ -1,20 +1,33 @@
 {
-	"name": "graphics2",
+	"name": "@gandolphinnn/inputs",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
 	"scripts": {
-	  "test": "echo \"Error: no test specified\" && exit 1"
+		"live": "concurrently \"tsc --watch\" \"parcel index.html --open\"",
+		"clean": "rmdir \".parcel-cache\" && del /Q /f \"dist\" && tsc && del /Q /f \"dist\\test*\"",
+		"publish": "npm run clean && npm publish"
 	},
 	"repository": {
-	  "type": "git",
-	  "url": "git+https://github.com/gandolphinnn/npm_graphics2.git"
+		"type": "git",
+		"url": "git+https://github.com/gandolphinnn/npm_inputs.git"
 	},
 	"author": "Gandolphinnn",
 	"license": "ISC",
 	"bugs": {
-	  "url": "https://github.com/gandolphinnn/npm_graphics2/issues"
+		"url": "https://github.com/gandolphinnn/npm_inputs/issues"
 	},
-	"homepage": "https://github.com/gandolphinnn/npm_graphics2#readme"
-  }
-  
+	"homepage": "https://github.com/gandolphinnn/npm_inputs#readme",
+	"dependencies": {
+		"@gandolphinnn/graphics2": "^2.0.0"
+	},
+	"devDependencies": {
+		"@parcel/config-default": "^2.10.3",
+		"@parcel/transformer-typescript-tsc": "^2.10.3",
+		"parcel-reporter-static-files-copy": "^1.5.3"
+	}
+}

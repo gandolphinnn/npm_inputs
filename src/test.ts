@@ -1,1 +1,3 @@
-import {DrawAction, Graphics, Coord, Line} from './index.js'
+import { Input } from './index.js';
+
+console.log(Input.get);

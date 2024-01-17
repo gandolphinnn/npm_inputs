@@ -1,47 +1,36 @@
 import { Singleton, clamp, coalesce } from '@gandolphinnn/utils';
 import { Coord } from '@gandolphinnn/graphics2';
 
+const MS_DELAY_DOWNDBL_HOLD = 750;
+const MS_DELAY_RELEASED_UP = 750;
 enum BtnState {
-	Up, Down, Hold, Released, Dbl
+	Up, Down, Released, Hold, Dbl
 }
 class Button {
 	private _state: BtnState;
+	private lastTimeStamp: number;
 	get state() { //TODO this getter update the state based on the last update
+		//TODO TEST THIS
+		if (getCurrentTimeStamp() - this.lastTimeStamp >= MS_DELAY_DOWNDBL_HOLD && (this._state == BtnState.Down || this._state == BtnState.Dbl)) {
+			this._state = BtnState.Hold;
+		}
+		if (getCurrentTimeStamp() - this.lastTimeStamp >= MS_DELAY_RELEASED_UP && this._state == BtnState.Released) {
+			this._state = BtnState.Up;
+		}
 		return this._state
 	}
-	lastUpdate: Date;
+	private set state(state: BtnState) {
+		this.lastTimeStamp = getCurrentTimeStamp();
+	}
 	setState(state: BtnState.Up | BtnState.Down ) {
-		const currentVal = this.state; //MUST PICK the getter
-		switch (state) {
-			case BtnState.:
-				
-				break;
-		
-			default:
-				break;
-		}
-
-		const BTN_STATE_FLOW = {
-			[BtnState.Up]: {
-				[BtnState.Up]: BtnState.Up,
-				[BtnState.Down]: BtnState.Down,
-			},
-			[BtnState.Down]: {
-				[BtnState.Up]: BtnState.Released,
-				[BtnState.Down]: BtnState.Hold,
-			},
-			[BtnState.Hold]: {
-				[BtnState.Up]: BtnState.Released,
-				[BtnState.Down]: BtnState.Hold,
-			},
-			[BtnState.Released]: {
-				[BtnState.Up]: BtnState.Up,
-				[BtnState.Down]: BtnState.Dbl,
-			},
-			[BtnState.Dbl]: {
-				[BtnState.Up]: BtnState.Released,
-				[BtnState.Down]: BtnState.Hold,
-			},
+		const currentState = this.state; //? MUST PICK the getter
+		switch (currentState) {
+			case BtnState.Up:		this.state = BtnState.Down;		break;
+			case BtnState.Down:		this.state = BtnState.Released;	break;
+			case BtnState.Released:	this.state = BtnState.Dbl;		break;
+			case BtnState.Hold:		this.state = BtnState.Up;		break;
+			case BtnState.Dbl:		this.state = BtnState.Released;	break;
+			default: break;
 		}
 	}
 }
@@ -97,7 +86,7 @@ export class Input extends Singleton {
 	}
 	private changeBtnState(code: string, isDown: 0 | 1) {
 		const currentVal = coalesce(Input.get._key[code], BtnState.Up) as BtnState
-		Input.get._key[code] = BTN_STATE_FLOW[currentVal][isDown] as BtnState
+		Input.get._key[code];
 	}
 	static mousePos() {
 		return Input.get._mouse.pos.copy();
@@ -114,4 +103,8 @@ export function getTimeStamp() {
 }
 export function replaceKeyCode(code: string) {
 	return code.replace('Key', 'K').replace('Digit', 'D').replace('Numpad', 'P').replace('Arrow', '');
+}
+export function getCurrentTimeStamp() {
+	const date = new Date()
+	return ((date.getHours() * 60 + date.getMinutes())*60+date.getSeconds())*1000 + date.getMilliseconds();
 }

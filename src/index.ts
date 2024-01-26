@@ -1,5 +1,5 @@
 import { Singleton, clamp, coalesce } from '@gandolphinnn/utils';
-import { Coord } from '@gandolphinnn/graphics2';
+import { Coord, MainCanvas } from '@gandolphinnn/graphics2';
 
 //#region Enum, Constants
 export enum BtnState {
@@ -61,37 +61,37 @@ export class Input extends Singleton {
 		this._keys = {};
 		this.notPreventedCodes = ['F5', 'F12'];
 
-		document.addEventListener('contextmenu', e => e.preventDefault()); //? prevent right click menu
-		document.addEventListener('mousemove', e => {
+		MainCanvas.get.cnv.addEventListener('contextmenu', e => e.preventDefault()); //? prevent right click menu
+		MainCanvas.get.cnv.addEventListener('mousemove', e => {
 			Input.get._mouse.pos = new Coord(e.clientX, e.clientY);
 		});
 		//TODO figure out how to reset the wheel object
-		document.addEventListener('wheel', e => {
+		MainCanvas.get.cnv.addEventListener('wheel', e => {
 			e.preventDefault();
 			Input.get._mouse.wheel.x = clamp(e.deltaX, -1, 1) +1 -1;
 			Input.get._mouse.wheel.y = clamp(e.deltaY, -1, 1) +1 -1;
 		}, {passive: false}); //? passive -> https://chromestatus.com/feature/6662647093133312
-		document.addEventListener('mousedown', e => {
+		MainCanvas.get.cnv.addEventListener('mousedown', e => {
 			/*this.preventeDefault(e);
 			Input.get._mouse.btn[e.button] = BtnState.Down;*/
 		})
-		document.addEventListener('mouseup', e => {
+		MainCanvas.get.cnv.addEventListener('mouseup', e => {
 			//Input.get._mouse.btn[e.button] = BtnState.Up;
 		})
-		document.addEventListener('keydown', e => {
+		MainCanvas.get.cnv.addEventListener('keydown', e => {
 			const code = replaceKeyCode(e.code);
 
 			if (this.notPreventedCodes.indexOf(code) == -1)
 				e.preventDefault()
 
-			this.toggleBtn(code, BtnState.Down);
+			this.toggleKey(code, BtnState.Down);
 		});
-		document.addEventListener('keyup', e => {
+		MainCanvas.get.cnv.addEventListener('keyup', e => {
 			const code = replaceKeyCode(e.code);
-			this.toggleBtn(code, BtnState.Up);
+			this.toggleKey(code, BtnState.Up);
 		});
 	}
-	private toggleBtn(code: string, newState: BtnState.Up | BtnState.Down) {
+	private toggleKey(code: string, newState: BtnState.Up | BtnState.Down) {
 		if (Input.get._keys[code] === undefined)
 			Input.get._keys[code] = new Button();
 
@@ -103,7 +103,6 @@ export class Input extends Singleton {
 	static mouseWheel() {
 		//? close, but this is faster than the event
 		const wheel = {...Input.get._mouse.wheel} as {x: number, y: number};
-		Input.get._mouse.wheel = {x: 0, y: 0}
 		return wheel;
 	}
 	static mouseBtnState(btnIndex: number) {

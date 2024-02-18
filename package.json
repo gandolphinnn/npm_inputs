@@ -23,6 +23,6 @@
 	},
 	"homepage": "https://github.com/gandolphinnn/npm_inputs#readme",
 	"dependencies": {
-		"@gandolphinnn/graphics2": "^2.0.1"
+		"@gandolphinnn/graphics2": "^2.0.3"
 	}
 }

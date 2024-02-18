@@ -5,6 +5,7 @@ import { Coord, MainCanvas } from '@gandolphinnn/graphics2';
 export enum BtnState {
 	Up, Down, Released, Hold, Dbl
 }
+export type KeyCode = 'Backspace' | 'Tab' | 'Enter' | 'ShiftLeft' | 'ShiftRight' | 'ControlLeft' | 'ControlRight' | 'AltLeft' | 'AltRight' | 'Pause' | 'CapsLock' | 'Escape' | 'Space' | 'PageUp' | 'PageDown' | 'End' | 'Home' | 'Left' | 'Up' | 'Right' | 'Down' | 'PrintScreen' | 'Insert' | 'Delete' | 'D0' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6' | 'D7' | 'D8' | 'D9' | 'Quote' | 'KA' | 'KB' | 'KC' | 'KD' | 'KE' | 'KF' | 'KG' | 'KH' | 'KI' | 'KJ' | 'KK' | 'KL' | 'KM' | 'KN' | 'KO' | 'KP' | 'KQ' | 'KR' | 'KS' | 'KT' | 'KU' | 'KV' | 'KW' | 'KX' | 'KY' | 'KZ' | 'MetaLeft' | 'MetaRight' | 'ContextMenu' | 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6' | 'P7' | 'P8' | 'P9' | 'PMultiply' | 'PAdd' | 'PSubtract' | 'PDecimal' | 'PDivide' | 'F1' | 'F2' | 'F3' | 'F4' | 'F5' | 'F6' | 'F7' | 'F8' | 'F9' | 'F10' | 'F11' | 'F12' | 'NumLock' | 'ScrollLock' | 'Semicolon' | 'Equal' | 'Comma' | 'Minus' | 'Period' | 'Slash' | 'Backquote' | 'BracketLeft' | 'Backslash' | 'BracketRight'
 export const MS_DELAY_DOWNDBL_HOLD = 300;
 export const MS_DELAY_RELEASED_UP = 300;
 const EVENT_BTNSTATE = { //! NO EXPORT
@@ -17,17 +18,20 @@ const EVENT_BTNSTATE = { //! NO EXPORT
 export class Button {
 	private _state: BtnState;
 	private lastTimeStamp: number;
+	get elapsedSinceUpdate() {
+		return getTodayTimeStamp() - this.lastTimeStamp;
+	}
 	get state() {
-		if (getCurrentTimeStamp() - this.lastTimeStamp >= MS_DELAY_DOWNDBL_HOLD && (this._state == BtnState.Down || this._state == BtnState.Dbl))
+		if (this.elapsedSinceUpdate >= MS_DELAY_DOWNDBL_HOLD && (this._state == BtnState.Down || this._state == BtnState.Dbl))
 			this._state = BtnState.Hold;
 
-		if (getCurrentTimeStamp() - this.lastTimeStamp >= MS_DELAY_RELEASED_UP && this._state == BtnState.Released)
+		if (this.elapsedSinceUpdate >= MS_DELAY_RELEASED_UP && this._state == BtnState.Released)
 			this._state = BtnState.Up;
 
 		return this._state;
 	}
 	private set state(state: BtnState) {
-		this.lastTimeStamp = getCurrentTimeStamp();
+		this.lastTimeStamp = getTodayTimeStamp();
 		this._state = state;
 	}
 	constructor() {
@@ -61,13 +65,14 @@ export class Input extends Singleton {
 		this._keys = {};
 		this.notPreventedCodes = ['F5', 'F12'];
 
+		//#region Add events
 		MainCanvas.get.cnv.addEventListener('contextmenu', e => e.preventDefault()); //? prevent right click menu
 		MainCanvas.get.cnv.addEventListener('mousemove', e => {
 			Input.get._mouse.pos = new Coord(e.clientX, e.clientY);
 		});
-		//TODO figure out how to reset the wheel object
+		
 		MainCanvas.get.cnv.addEventListener('wheel', e => {
-			e.preventDefault();
+			e.preventDefault(); //TODO figure out how to reset the wheel object
 			Input.get._mouse.wheel.x = clamp(e.deltaX, -1, 1) +1 -1;
 			Input.get._mouse.wheel.y = clamp(e.deltaY, -1, 1) +1 -1;
 		}, {passive: false}); //? passive -> https://chromestatus.com/feature/6662647093133312
@@ -90,8 +95,9 @@ export class Input extends Singleton {
 			const code = replaceKeyCode(e.code);
 			this.toggleKey(code, BtnState.Up);
 		});
+		//#endregion
 	}
-	private toggleKey(code: string, newState: BtnState.Up | BtnState.Down) {
+	private toggleKey(code: KeyCode, newState: BtnState.Up | BtnState.Down) {
 		if (Input.get._keys[code] === undefined)
 			Input.get._keys[code] = new Button();
 
@@ -119,10 +125,10 @@ export class Input extends Singleton {
 
 //#region Functions
 export function replaceKeyCode(code: string) {
-	return code.replace('Key', 'K').replace('Digit', 'D').replace('Numpad', 'P').replace('Arrow', '');
+	return code.replace('Key', 'K').replace('Digit', 'D').replace('Numpad', 'P').replace('Arrow', '') as KeyCode;
 }
-export function getCurrentTimeStamp() {
-	const date = new Date()
-	return ((date.getHours() * 60 + date.getMinutes())*60+date.getSeconds())*1000 + date.getMilliseconds();
+export function getTodayTimeStamp() {
+	const date = new Date();
+	return ((date.getHours() * 60 + date.getMinutes())*60 + date.getSeconds()) * 1000 + date.getMilliseconds();
 }
 //#endregion

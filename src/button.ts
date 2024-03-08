@@ -7,7 +7,7 @@ const MS_DELAY_BTN = {
 	[BtnState.Up]: 300, //? Delay from Button.Released to Button.Up
 	[BtnState.Down]: 400 //? Delay from Button.Down or Button.Dbl to Button.Hold
 }
-const MS_DELAY_WHEEL_RESET: number = 300; //? Delay from Wheel.x or Wheel.y == -1 or 1 to == 0
+const MS_DELAY_WHEEL_RESET: number = 400; //? Delay from Wheel.x or Wheel.y == -1 or 1 to == 0
 
 const EVENT_BTNSTATE = {
 	[BtnState.Up]: [BtnState.Up, BtnState.Released],
@@ -31,12 +31,12 @@ class Timer {
 export class WheelAxis extends Timer {
 	private _state: WheelState;
 	get state() {
-		if (this.state !== 0 && this.elapsed >= MS_DELAY_WHEEL_RESET) {
-			this.state = 0;
+		if (this._state !== 0 && this.elapsed >= MS_DELAY_WHEEL_RESET) {
+			this._state = 0;
 		}
 		return this._state;
 	}
-	private set state(state: WheelState) {
+	set state(state: WheelState) {
 		if (this.state === state) {
 			return;
 		}

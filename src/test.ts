@@ -12,25 +12,25 @@ const animate: FrameRequestCallback = (timestamp: number) => {
 	circ.style.mergeFillStyle(Color.byName(Input.mouseIn? 'Black' : 'Red'));
 	
 	mesh.center = Input.mousePos;
-	btnText.content = logBtns();
-	keyText.content = logKeys();
-	console.log(Input.keys); //! keys dont work!!!!
+
+	mouseText.content = `pos: (${Input.mousePos.x}, ${Input.mousePos.y}) wheel: (${Input.mouseWheel.x.state}, ${Input.mouseWheel.y.state})`;
+	mouseBtnText.content = `btns ${logInput(Input.mouseBtn)}`;
+	keyText.content = `${logInput(Input.keys)}`;
+	//console.log(Input.keys); //! keys dont work!!!!
 	
 	mesh.render();
 }
 const circ = new Circle(new Coord(0,0), 5);
-const btnText = new Text(new Coord(0,-90), '');
+const mouseText = new Text(new Coord(0,-150), '');
+const mouseBtnText = new Text(new Coord(0,-90), '');
 const keyText = new Text(new Coord(0,-30), '');
-const mesh = new Mesh(new Coord(0,0), circ, keyText, btnText)
+const mesh = new Mesh(new Coord(0,0), circ, keyText, mouseBtnText, mouseText)
 window.requestAnimationFrame(animate);
-function logBtns() {
-	return JSON.stringify(Enumerable.from(Input.mouseBtn).toArray().map((btn) => {
-		return `${btn.key}, ${BtnState[btn.value.state]}`
+function logInput(toLog: Record<any, any>) {
+	const recordArr = Enumerable.from(toLog).toArray();
+	const toRet = JSON.stringify(recordArr.map((btn) => {
+		return `(${btn.key}: ${BtnState[btn.value.state]})`
 	}));
-}
-function logKeys() {
-	return JSON.stringify(Enumerable.from(Input.keys).toArray().map((btn) => {
-		return `${btn.key}, ${BtnState[btn.value.state]}`
-	}));
+	return toRet.replace(/"/g, '')
 }
 /**/

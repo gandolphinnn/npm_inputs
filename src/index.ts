@@ -49,13 +49,16 @@ export class Input extends Singleton {
 		MainCanvas.get.cnv.addEventListener('mouseleave', e => {
 			Input.get._mouse.isInside = false;
 		});
-		MainCanvas.get.cnv.addEventListener('keydown', e => { //todo fix this
+		window.addEventListener('keydown', e => {
 			const code = replaceKeyCode(e.code);
+			//todo try to put a div or something else exactly on top of the canvas to detect all the inputs, because a canvas cant be focused and cant detect keydown
+			console.log(e.target);
+			
 			this.preventDefault(code, e);
-
+			
 			this.toggleKeybtn(code, BtnState.Down);
 		});
-		MainCanvas.get.cnv.addEventListener('keyup', e => {
+		window.addEventListener('keyup', e => {
 			const code = replaceKeyCode(e.code);
 			this.toggleKeybtn(code, BtnState.Up);
 		});

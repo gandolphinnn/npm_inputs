@@ -1,10 +1,10 @@
-import { Circle, Color, Coord, MainCanvas, Mesh, Text, getSubStyleValue } from '@gandolphinnn/graphics2';
-import { arrPivot, objPivot } from '@gandolphinnn/utils'
+import { Circle, Color, Coord, MainCanvas, Mesh, Text } from '@gandolphinnn/graphics2';
 import Enumerable from 'linq/linq.js'
 import { Input, BtnState } from './index.js';
 
 const c = MainCanvas.get;
-c.writeStyle.mergeFont('50px Arial')
+c.writeStyle.mergeFont('50px Arial');
+c.bgColor = Color.byName('Grey');
 
 const animate: FrameRequestCallback = (timestamp: number) => {
 	MainCanvas.get.ctx.clearRect(0,0, innerWidth, innerHeight);
@@ -16,7 +16,6 @@ const animate: FrameRequestCallback = (timestamp: number) => {
 	mouseText.content = `pos: (${Input.mousePos.x}, ${Input.mousePos.y}) wheel: (${Input.mouseWheel.x.state}, ${Input.mouseWheel.y.state})`;
 	mouseBtnText.content = `btns ${logInput(Input.mouseBtn)}`;
 	keyText.content = `${logInput(Input.keys)}`;
-	//console.log(Input.keys); //! keys dont work!!!!
 	
 	mesh.render();
 }

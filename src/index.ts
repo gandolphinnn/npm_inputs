@@ -4,24 +4,36 @@ import { BtnState, Button, WheelAxis, WheelState } from './button.js';
 export * from './button.js';
 //#region Enum, Constants
 
+export type BtnCode = 0 | 1 | 2 | 3 | 4;
 export type KeyCode = 'Backspace' | 'Tab' | 'Enter' | 'ShiftLeft' | 'ShiftRight' | 'ControlLeft' | 'ControlRight' | 'AltLeft' | 'AltRight' | 'Pause' | 'CapsLock' | 'Escape' | 'Space' | 'PageUp' | 'PageDown' | 'End' | 'Home' | 'Left' | 'Up' | 'Right' | 'Down' | 'PrintScreen' | 'Insert' | 'Delete' | 'D0' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6' | 'D7' | 'D8' | 'D9' | 'Quote' | 'KA' | 'KB' | 'KC' | 'KD' | 'KE' | 'KF' | 'KG' | 'KH' | 'KI' | 'KJ' | 'KK' | 'KL' | 'KM' | 'KN' | 'KO' | 'KP' | 'KQ' | 'KR' | 'KS' | 'KT' | 'KU' | 'KV' | 'KW' | 'KX' | 'KY' | 'KZ' | 'MetaLeft' | 'MetaRight' | 'ContextMenu' | 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6' | 'P7' | 'P8' | 'P9' | 'PMultiply' | 'PAdd' | 'PSubtract' | 'PDecimal' | 'PDivide' | 'F1' | 'F2' | 'F3' | 'F4' | 'F5' | 'F6' | 'F7' | 'F8' | 'F9' | 'F10' | 'F11' | 'F12' | 'NumLock' | 'ScrollLock' | 'Semicolon' | 'Equal' | 'Comma' | 'Minus' | 'Period' | 'Slash' | 'Backquote' | 'BracketLeft' | 'Backslash' | 'BracketRight'
 export type preventedCodes = KeyCode | 'mousedown' | 'wheel' | 'contextmenu'
 //#endregion
 
 //#region Classes
+class Mouse {
+	pos: Coord;
+	wheel: {x: WheelAxis, y: WheelAxis};
+	btn: Record<BtnCode, Button>;
+	isInside: boolean;
+	constructor() {
+		this.pos = new Coord(0,0);
+		this.wheel = {x: new WheelAxis(), y: new WheelAxis()};
+		this.btn = {0: new Button(), 1: new Button(), 2: new Button(), 3: new Button(), 4: new Button()};
+		this.isInside = null;
+	}
+}
 export class Input extends Singleton {
 	private static get get() { return this.singletonInstance as Input }
 
-	private _mouse: { pos: Coord, wheel: {x: WheelAxis, y: WheelAxis}, btn: Record<number, Button>, isInside: boolean }
+	private _mouse = new Mouse();
 	private _keys: Record<string, Button>;
 
-	notPreventedCodes: preventedCodes[];
+	notPreventedCodes: preventedCodes[] = [];
 
 	constructor() {
 		super();
-		this._mouse = {pos: new Coord(0,0), wheel: {x: new WheelAxis(), y: new WheelAxis()}, btn: {}, isInside: null};
 		this._keys = {};
-		this.notPreventedCodes = ['F5', 'F12'];
+		this.notPreventedCodes = ['F5', 'F12', 'wheel'];
 
 		//#region Add events
 		MainCanvas.get.cnv.addEventListener('contextmenu', e =>
@@ -38,10 +50,10 @@ export class Input extends Singleton {
 		});
 		MainCanvas.get.cnv.addEventListener('mousedown', e => {
 			this.preventDefault('mousedown', e);
-			this.toggleMouseBtn(e.button, BtnState.Down);
+			this.toggleMouseBtn(e.button as BtnCode, BtnState.Down);
 		});
 		MainCanvas.get.cnv.addEventListener('mouseup', e => {
-			this.toggleMouseBtn(e.button, BtnState.Up);
+			this.toggleMouseBtn(e.button as BtnCode, BtnState.Up);
 		});
 		MainCanvas.get.cnv.addEventListener('mouseenter', e => {
 			Input.get._mouse.isInside = true;
@@ -50,21 +62,19 @@ export class Input extends Singleton {
 			Input.get._mouse.isInside = false;
 		});
 		window.addEventListener('keydown', e => {
+			if (e.repeat || !Input.get._mouse.isInside) return;
 			const code = replaceKeyCode(e.code);
-			//todo try to put a div or something else exactly on top of the canvas to detect all the inputs, because a canvas cant be focused and cant detect keydown
-			console.log(e.target);
-			
 			this.preventDefault(code, e);
-			
 			this.toggleKeybtn(code, BtnState.Down);
 		});
 		window.addEventListener('keyup', e => {
+			if (!Input.get._mouse.isInside) return;
 			const code = replaceKeyCode(e.code);
 			this.toggleKeybtn(code, BtnState.Up);
 		});
 		//#endregion
 	}
-	private toggleMouseBtn(btnIndex: number, newState: BtnState.Up | BtnState.Down) {
+	private toggleMouseBtn(btnIndex: BtnCode, newState: BtnState.Up | BtnState.Down) {
 		if (Input.get._mouse.btn[btnIndex] === undefined)
 			Input.get._mouse.btn[btnIndex] = new Button();
 		Input.get._mouse.btn[btnIndex].toggle(newState);

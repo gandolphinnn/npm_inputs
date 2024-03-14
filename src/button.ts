@@ -19,7 +19,7 @@ export function getTodayTimeStamp() {
 	const date = new Date();
 	return ((date.getHours() * 60 + date.getMinutes())*60 + date.getSeconds()) * 1000 + date.getMilliseconds();
 }
-class Timer {
+class InputTimer {
 	protected _timeStamp: number;
 	protected get elapsed() {
 		return getTodayTimeStamp() - this._timeStamp;
@@ -27,8 +27,11 @@ class Timer {
 	constructor() {
 		this._timeStamp = getTodayTimeStamp();
 	}
+	setTS() {
+		this._timeStamp = getTodayTimeStamp();
+	}
 }
-export class WheelAxis extends Timer {
+export class WheelAxis extends InputTimer {
 	private _state: WheelState;
 	get state() {
 		if (this._state !== 0 && this.elapsed >= MS_DELAY_WHEEL_RESET) {
@@ -40,37 +43,39 @@ export class WheelAxis extends Timer {
 		if (this.state === state) {
 			return;
 		}
-		this._timeStamp = getTodayTimeStamp();
+		this.setTS();
 		this._state = state;
 	}
+
 	constructor() {
 		super();
 		this._state = 0;
 	}
 }
-//todo extends Timer
-export class Button {
+export class Button extends InputTimer {
 	private _state: BtnState;
-	private lastTimeStamp: number;
-	get elapsedSinceUpdate() {
-		return getTodayTimeStamp() - this.lastTimeStamp;
-	}
 	get state() {
-		if (this.elapsedSinceUpdate >= MS_DELAY_BTN[BtnState.Down] && (this._state == BtnState.Down || this._state == BtnState.Dbl))
+		if (this.elapsed >= MS_DELAY_BTN[BtnState.Down] && (this._state == BtnState.Down || this._state == BtnState.Dbl))
 			this._state = BtnState.Hold;
 
-		if (this.elapsedSinceUpdate >= MS_DELAY_BTN[BtnState.Up] && this._state == BtnState.Released)
+		if (this.elapsed >= MS_DELAY_BTN[BtnState.Up] && this._state == BtnState.Released)
 			this._state = BtnState.Up;
 
 		return this._state;
 	}
 	private set state(state: BtnState) {
-		this.lastTimeStamp = getTodayTimeStamp();
+		if (this.state === state) {
+			return;
+		}
+		this.setTS();
 		this._state = state;
 	}
+
 	constructor() {
+		super();
 		this.state = BtnState.Up;
 	}
+	
 	toggle(newState: BtnState.Up | BtnState.Down) {
 		const currentState = this.state; //? MUST PICK the getter
 		if (EVENT_BTNSTATE[newState].indexOf(currentState) != -1) { //? If the new State is similar to the current state (like released and up)

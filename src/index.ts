@@ -6,7 +6,7 @@ export * from './button.js';
 //#region Types
 export type BtnCode = 0 | 1 | 2 | 3 | 4;
 export type KeyCode = 'Backspace' | 'Tab' | 'Enter' | 'ShiftLeft' | 'ShiftRight' | 'ControlLeft' | 'ControlRight' | 'AltLeft' | 'AltRight' | 'Pause' | 'CapsLock' | 'Escape' | 'Space' | 'PageUp' | 'PageDown' | 'End' | 'Home' | 'Left' | 'Up' | 'Right' | 'Down' | 'PrintScreen' | 'Insert' | 'Delete' | 'D0' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6' | 'D7' | 'D8' | 'D9' | 'Quote' | 'KA' | 'KB' | 'KC' | 'KD' | 'KE' | 'KF' | 'KG' | 'KH' | 'KI' | 'KJ' | 'KK' | 'KL' | 'KM' | 'KN' | 'KO' | 'KP' | 'KQ' | 'KR' | 'KS' | 'KT' | 'KU' | 'KV' | 'KW' | 'KX' | 'KY' | 'KZ' | 'MetaLeft' | 'MetaRight' | 'ContextMenu' | 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6' | 'P7' | 'P8' | 'P9' | 'PMultiply' | 'PAdd' | 'PSubtract' | 'PDecimal' | 'PDivide' | 'F1' | 'F2' | 'F3' | 'F4' | 'F5' | 'F6' | 'F7' | 'F8' | 'F9' | 'F10' | 'F11' | 'F12' | 'NumLock' | 'ScrollLock' | 'Semicolon' | 'Equal' | 'Comma' | 'Minus' | 'Period' | 'Slash' | 'Backquote' | 'BracketLeft' | 'Backslash' | 'BracketRight'
-export type preventedCodes = KeyCode | 'mousedown' | 'wheel' | 'contextmenu'
+export type preventableCodes = KeyCode | 'mousedown' | 'wheel' | 'contextmenu'
 //#endregion
 
 //#region Classes
@@ -26,9 +26,9 @@ export class Input extends Singleton {
 	private static get get() { return this.singletonInstance as Input }
 
 	private _mouse = new Mouse();
-	private _keys: Record<string, Button>;
+	private _keys: Record<KeyCode, Button>; //todo initialize
 
-	notPreventedCodes: preventedCodes[] = [];
+	notPreventedCodes: preventableCodes[] = [];
 
 	constructor() {
 		super();
@@ -99,17 +99,23 @@ export class Input extends Singleton {
 	static get mouseBtn() {
 		return Input.get._mouse.btn;
 	}
+	static btnState(btnCode: BtnCode) {
+		if (Input.get._mouse.btn[btnCode] === undefined)
+			return BtnState.Up;
+
+		return Input.get._mouse.btn[btnCode].state;
+	}
 	static get keys() {
 		return Input.get._keys;
 	}
-	static keyState(keyCode: string) {
+	static keyState(keyCode: KeyCode) {
 		if (Input.get._keys[keyCode] === undefined)
-			Input.get._keys[keyCode] = new Button();
+			return BtnState.Up;
 
 		return Input.get._keys[keyCode].state;
 	}
 	//#endregion
-	private preventDefault(code: preventedCodes, e: Event) {
+	private preventDefault(code: preventableCodes, e: Event) {
 		if (this.notPreventedCodes.indexOf(code) == -1)
 			e.preventDefault()
 	}

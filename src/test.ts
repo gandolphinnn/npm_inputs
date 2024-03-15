@@ -13,7 +13,7 @@ const animate: FrameRequestCallback = (timestamp: number) => {
 	
 	mesh.center = Input.mousePos;
 
-	mouseText.content = `pos: (${Input.mousePos.x}, ${Input.mousePos.y}) wheel: (${Input.mouseWheel.x.state}, ${Input.mouseWheel.y.state}) isInside: ${Input.mouseIn}`;
+	mouseText.content = `pos: (${Input.mousePos.x}, ${Input.mousePos.y}) wheel: (${Input.mouseWheel.x}, ${Input.mouseWheel.y}) isInside: ${Input.mouseIn}`;
 	mouseBtnText.content = `btns ${logInput(Input.mouseBtn)}`;
 	keyText.content = `keys ${logInput(Input.keys)}`;
 	

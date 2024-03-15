@@ -1,8 +1,8 @@
 export enum BtnState {
 	Up, Down, Released, Hold, Dbl
 }
-
 export type WheelState = 0 | 1 | -1;
+
 const MS_DELAY_BTN = {
 	[BtnState.Up]: 300, //? Delay from Button.Released to Button.Up
 	[BtnState.Down]: 400 //? Delay from Button.Down or Button.Dbl to Button.Hold
@@ -27,7 +27,7 @@ class InputTimer {
 	constructor() {
 		this._timeStamp = getTodayTimeStamp();
 	}
-	setTS() {
+	protected setTS() {
 		this._timeStamp = getTodayTimeStamp();
 	}
 }

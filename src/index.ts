@@ -1,7 +1,8 @@
 import { Singleton, clamp } from '@gandolphinnn/utils';
-import { Coord, MainCanvas } from '@gandolphinnn/graphics2';
+import { Coord, MainCanvas, Circle, Color, Mesh, Text } from '@gandolphinnn/graphics2';
 import { BtnState, Button, WheelAxis, WheelState } from './button.js';
 export * from './button.js';
+import Enumerable from 'linq/linq.js'
 
 //#region Types
 export type BtnCode = 0 | 1 | 2 | 3 | 4;
@@ -26,13 +27,117 @@ export class Input extends Singleton {
 	private static get get() { return this.singletonInstance as Input }
 
 	private _mouse = new Mouse();
-	private _keys: Record<KeyCode, Button>; //todo initialize
+	private _keys: Record<KeyCode, Button>;
 
 	notPreventedCodes: preventableCodes[] = [];
 
 	constructor() {
 		super();
-		this._keys = {};
+		this._keys = {
+			'Backspace': new Button(),
+			'Tab': new Button(),
+			'Enter': new Button(),
+			'ShiftLeft': new Button(),
+			'ShiftRight': new Button(),
+			'ControlLeft': new Button(),
+			'ControlRight': new Button(),
+			'AltLeft': new Button(),
+			'AltRight': new Button(),
+			'Pause': new Button(),
+			'CapsLock': new Button(),
+			'Escape': new Button(),
+			'Space': new Button(),
+			'PageUp': new Button(),
+			'PageDown': new Button(),
+			'End': new Button(),
+			'Home': new Button(),
+			'Left': new Button(),
+			'Up': new Button(),
+			'Right': new Button(),
+			'Down': new Button(),
+			'PrintScreen': new Button(),
+			'Insert': new Button(),
+			'Delete': new Button(),
+			'D0': new Button(),
+			'D1': new Button(),
+			'D2': new Button(),
+			'D3': new Button(),
+			'D4': new Button(),
+			'D5': new Button(),
+			'D6': new Button(),
+			'D7': new Button(),
+			'D8': new Button(),
+			'D9': new Button(),
+			'Quote': new Button(),
+			'KA': new Button(),
+			'KB': new Button(),
+			'KC': new Button(),
+			'KD': new Button(),
+			'KE': new Button(),
+			'KF': new Button(),
+			'KG': new Button(),
+			'KH': new Button(),
+			'KI': new Button(),
+			'KJ': new Button(),
+			'KK': new Button(),
+			'KL': new Button(),
+			'KM': new Button(),
+			'KN': new Button(),
+			'KO': new Button(),
+			'KP': new Button(),
+			'KQ': new Button(),
+			'KR': new Button(),
+			'KS': new Button(),
+			'KT': new Button(),
+			'KU': new Button(),
+			'KV': new Button(),
+			'KW': new Button(),
+			'KX': new Button(),
+			'KY': new Button(),
+			'KZ': new Button(),
+			'MetaLeft': new Button(),
+			'MetaRight': new Button(),
+			'ContextMenu': new Button(),
+			'P0': new Button(),
+			'P1': new Button(),
+			'P2': new Button(),
+			'P3': new Button(),
+			'P4': new Button(),
+			'P5': new Button(),
+			'P6': new Button(),
+			'P7': new Button(),
+			'P8': new Button(),
+			'P9': new Button(),
+			'PMultiply': new Button(),
+			'PAdd': new Button(),
+			'PSubtract': new Button(),
+			'PDecimal': new Button(),
+			'PDivide': new Button(),
+			'F1': new Button(),
+			'F2': new Button(),
+			'F3': new Button(),
+			'F4': new Button(),
+			'F5': new Button(),
+			'F6': new Button(),
+			'F7': new Button(),
+			'F8': new Button(),
+			'F9': new Button(),
+			'F10': new Button(),
+			'F11': new Button(),
+			'F12': new Button(),
+			'NumLock': new Button(),
+			'ScrollLock': new Button(),
+			'Semicolon': new Button(),
+			'Equal': new Button(),
+			'Comma': new Button(),
+			'Minus': new Button(),
+			'Period': new Button(),
+			'Slash': new Button(),
+			'Backquote': new Button(),
+			'BracketLeft': new Button(),
+			'Backslash': new Button(),
+			'BracketRight': new Button()
+		};
 		this.notPreventedCodes = ['F5', 'F12', 'wheel'];
 
 		//#region Add events
@@ -63,16 +168,23 @@ export class Input extends Singleton {
 		});
 		window.addEventListener('keydown', e => {
 			if (e.repeat || !Input.get._mouse.isInside) return;
-			const code = replaceKeyCode(e.code);
+			const code = this.GetKeyCode(e.code);
 			this.preventDefault(code, e);
 			this.toggleKeybtn(code, BtnState.Down);
 		});
 		window.addEventListener('keyup', e => {
 			if (!Input.get._mouse.isInside) return;
-			const code = replaceKeyCode(e.code);
+			const code = this.GetKeyCode(e.code);
 			this.toggleKeybtn(code, BtnState.Up);
 		});
 		//#endregion
+	}
+	GetKeyCode(code: string) {
+		return code.replace('Key', 'K').replace('Digit', 'D').replace('Numpad', 'P').replace('Arrow', '') as KeyCode;
+	}
+	private preventDefault(code: preventableCodes, e: Event) {
+		if (this.notPreventedCodes.indexOf(code) == -1)
+			e.preventDefault()
 	}
 	private toggleMouseBtn(btnIndex: BtnCode, newState: BtnState.Up | BtnState.Down) {
 		if (Input.get._mouse.btn[btnIndex] === undefined)
@@ -114,16 +226,36 @@ export class Input extends Singleton {
 
 		return Input.get._keys[keyCode].state;
 	}
-	//#endregion
-	private preventDefault(code: preventableCodes, e: Event) {
-		if (this.notPreventedCodes.indexOf(code) == -1)
-			e.preventDefault()
+	static test() {
+		const animate: FrameRequestCallback = (timestamp: number) => {
+			MainCanvas.get.clean();
+			requestAnimationFrame(animate);
+			MainCanvas.get.drawSampleMetric(50);
+			circ.style.mergeFillStyle(Color.byName(Input.mouseIn? 'Black' : 'Red'));
+			
+			mesh.center = Input.mousePos;
+		
+			mouseText.content = `pos: (${Input.mousePos.x}, ${Input.mousePos.y}) wheel: (${Input.mouseWheel.x}, ${Input.mouseWheel.y}) isInside: ${Input.mouseIn}`;
+			mouseBtnText.content = `btns ${logInput(Input.mouseBtn)}`;
+			keyText.content = `keys ${logInput(Input.keys)}`;
+			
+			mesh.render();
+		}
+		const circ = new Circle(new Coord(0,0), 5);
+		const mouseText = new Text(new Coord(0,-55), '');
+		const mouseBtnText = new Text(new Coord(0,-35), '');
+		const keyText = new Text(new Coord(0,-15), '');
+		const mesh = new Mesh(new Coord(0,0), circ, keyText, mouseBtnText, mouseText)
+		const logInput = (toLog: Record<any, any>) => {
+			const recordArr = Enumerable.from(toLog).toArray().filter((btn) => btn.value.state !== BtnState.Up);
+			recordArr.sort((a, b) => a.key > b.key ? 1 : -1);
+			const toRet = JSON.stringify(recordArr.map((btn) => {
+				return `(${btn.key}: ${BtnState[btn.value.state]})`
+			}));
+			return toRet.replace(/"/g, '')
+		}
+		window.requestAnimationFrame(animate);
 	}
-}
-//#endregion
-
-//#region Functions
-export function replaceKeyCode(code: string) {
-	return code.replace('Key', 'K').replace('Digit', 'D').replace('Numpad', 'P').replace('Arrow', '') as KeyCode;
+	//#endregion
 }
 //#endregion

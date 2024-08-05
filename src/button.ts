@@ -3,17 +3,26 @@ export enum BtnState {
 }
 export type WheelState = 0 | 1 | -1;
 
+/**
+ * Delay in milliseconds for the button to change state 
+ */
 const MS_DELAY_BTN = {
 	[BtnState.Up]: 300, //? Delay from Button.Released to Button.Up
 	[BtnState.Down]: 400 //? Delay from Button.Down or Button.Dbl to Button.Hold
 }
-const MS_DELAY_WHEEL_RESET: number = 400; //? Delay from Wheel.x or Wheel.y == -1 or 1 to == 0
 
+/**
+ * Delay from Wheel.x or Wheel.y == -1 or 1 to == 0
+ */
+const MS_DELAY_WHEEL_RESET: number = 400;
+
+/**
+ * Grouping of states
+ */
 const EVENT_BTNSTATE = {
 	[BtnState.Up]: [BtnState.Up, BtnState.Released],
 	[BtnState.Down]: [BtnState.Down, BtnState.Hold, BtnState.Dbl]
 }
-
 
 export function getTodayTimeStamp() {
 	const date = new Date();
